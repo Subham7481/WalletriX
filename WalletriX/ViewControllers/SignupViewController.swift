@@ -133,17 +133,13 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         let attributedLoginText = NSMutableAttributedString(string: loginText)
         let font = UIFont.systemFont(ofSize: 16)
 
-        // Find the range of the "Login" text
         let loginRange = (loginText as NSString).range(of: "Login")
 
-        // Make "Login" a tappable link
         attributedLoginText.addAttribute(.link, value: "action://login", range: loginRange)
 
-        // Set default and link colors
         attributedLoginText.addAttribute(.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: loginText.count))
         attributedLoginText.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: loginRange)
 
-        // Set the attributed text to the UITextView
         loginMessage.attributedText = attributedLoginText
         loginMessage.delegate = self
         loginMessage.backgroundColor = .clear
@@ -151,9 +147,6 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         loginMessage.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(loginMessage)
-
-
-
 
         
         NSLayoutConstraint.activate([
