@@ -68,6 +68,16 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         pageControl.currentPage = currentIndex
     }
     
+    @objc func navigateSignUp(){
+        let signUpVC = SignupViewController()
+        navigationController?.pushViewController(signUpVC, animated: true)
+    }
+    
+    @objc func navigateLogin(){
+        let loginVC = LoginViewController()
+        navigationController?.pushViewController(loginVC, animated: true)
+    }
+    
     func setupComponents() {
         // Message Label 1
         msgLabel1.text = "Gain total control of your money"
@@ -91,6 +101,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         signUpButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         signUpButton.layer.cornerRadius = 10
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
+        signUpButton.addTarget(self, action: #selector(navigateSignUp), for: .touchUpInside)
         view.addSubview(signUpButton)
         
         // Login Button
@@ -99,6 +110,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         loginButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         loginButton.layer.cornerRadius = 10
         loginButton.translatesAutoresizingMaskIntoConstraints = false
+        loginButton.addTarget(self, action: #selector(navigateLogin), for: .touchUpInside)
         view.addSubview(loginButton)
         
         NSLayoutConstraint.activate([
