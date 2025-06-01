@@ -7,6 +7,9 @@
 
 import Foundation
 import UIKit
+import Firebase
+import FirebaseAuth
+
 class SignupViewController: UIViewController, UITextViewDelegate{
     let nameField = UITextField()
     let emailField = UITextField()
@@ -210,16 +213,6 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         checkBox.setImage(UIImage(systemName: newImageName), for: .normal)
     }
     
-//    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool{
-//        if URL.absoluteString == "action://terms" {
-//                // Navigate to TermsViewController
-//        let termsVC = TermsViewController()
-//        self.navigationController?.pushViewController(termsVC, animated: true)
-//        return false
-//        }
-//        return true
-//    }
-    
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         
         if URL.absoluteString == "action://terms" {
@@ -238,9 +231,9 @@ class SignupViewController: UIViewController, UITextViewDelegate{
 
         return true
     }
+}
 
-    
-    
+extension SignupViewController{
     @objc func signUp(){
         
     }
