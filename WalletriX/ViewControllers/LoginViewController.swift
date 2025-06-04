@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 class LoginViewController: UIViewController, UITextViewDelegate{
     let emailField = UITextField()
     let passwordField = UITextField()
@@ -14,6 +15,8 @@ class LoginViewController: UIViewController, UITextViewDelegate{
     let loginButton = UIButton()
     let forgotPassword = UITextView()
     let signUpMessage = UITextView()
+    let errorMessage = UILabel()
+    
     override func viewDidLoad(){
         super.viewDidLoad()
         title = "Login"
@@ -39,6 +42,7 @@ class LoginViewController: UIViewController, UITextViewDelegate{
         passwordField.autocapitalizationType = .none
         passwordField.autocorrectionType = .no
         passwordField.translatesAutoresizingMaskIntoConstraints = false
+        passwordField.isSecureTextEntry = true
         view.addSubview(passwordField)
         
         toggleButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
@@ -49,7 +53,7 @@ class LoginViewController: UIViewController, UITextViewDelegate{
         passwordField.rightViewMode = .always
         
         //Login Button
-        loginButton.setTitle("Sign Up", for: .normal)
+        loginButton.setTitle("Login", for: .normal)
         loginButton.backgroundColor = UIColor.systemIndigo
         loginButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         loginButton.layer.cornerRadius = 10
@@ -101,43 +105,57 @@ class LoginViewController: UIViewController, UITextViewDelegate{
         signUpMessage.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(signUpMessage)
+        
+        //Error Messasge
+        errorMessage.textColor = .systemRed
+        errorMessage.font = .systemFont(ofSize: 16)
+        errorMessage.textAlignment = .center
+        errorMessage.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(errorMessage)
 
         
         NSLayoutConstraint.activate([
+            // Email Field
             emailField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
             emailField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             emailField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             emailField.heightAnchor.constraint(equalToConstant: 50),
             
+            // Password Field
             passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: 20),
-            passwordField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            passwordField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            passwordField.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
+            passwordField.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             passwordField.heightAnchor.constraint(equalToConstant: 50),
             
+            // Login Button
             loginButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: 20),
-            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButton.widthAnchor.constraint(equalToConstant: 360),
+            loginButton.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
+            loginButton.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
             
+            // Forgot Password
             forgotPassword.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 30),
-            forgotPassword.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            forgotPassword.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            forgotPassword.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
+            forgotPassword.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             
+            // Sign Up Message
             signUpMessage.topAnchor.constraint(equalTo: forgotPassword.bottomAnchor, constant: 20),
             signUpMessage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signUpMessage.widthAnchor.constraint(equalToConstant: 300)
+            signUpMessage.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
+            
+            // Error Message
+            errorMessage.topAnchor.constraint(equalTo: signUpMessage.bottomAnchor, constant: 30),
+            errorMessage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorMessage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            errorMessage.widthAnchor.constraint(lessThanOrEqualToConstant: 300)
         ])
     }
     
     @objc func togglePasswordVisible(){
         passwordField.isSecureTextEntry.toggle()
         
-        let image = passwordField.isSecureTextEntry ? "eye.slash" : "eye"
+        let image = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
         toggleButton.setImage(UIImage(systemName: image), for: .normal)
-    }
-    
-    @objc func login(){
-        
     }
     
     @objc func forgotPasswordTapped(){
@@ -154,5 +172,63 @@ class LoginViewController: UIViewController, UITextViewDelegate{
             return false
         }
         return true
+    }
+}
+
+extension LoginViewController{
+    @objc func login(){
+        guard let email = emailField.text, !email.isEmpty,
+            let password = passwordField.text, !password.isEmpty else {
+            errorMessage.text = "Please enter email and password"
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password){ [weak self] result, error in
+        if let error = error {
+            self?.errorMessage.text = "Login failed: \(error.localizedDescription)"
+            return
+        }
+            
+        DispatchQueue.main.async {
+            let homeVC = HomeViewController()
+            homeVC.modalPresentationStyle = .fullScreen
+            self?.present(homeVC, animated: true)
+        }
+        }
+    }
+    
+    func validate(){
+        guard   let email = emailField.text,
+            let password = passwordField.text,
+            !email.isEmpty,
+            !password.isEmpty else {
+            errorMessage.text = "Please fill all fields and agree to terms."
+            return
+        }
+        
+        guard email.contains("@"), email.contains(".") else {
+            errorMessage.text = "Please enter a valid email."
+            return
+        }
+        
+        guard password.count >= 6 else {
+            errorMessage.text = "Password must be at least 6 characters."
+            return
+        }
+        
+        let uppercase = CharacterSet.uppercaseLetters
+            let lowercase = CharacterSet.lowercaseLetters
+            let digits = CharacterSet.decimalDigits
+            let symbols = CharacterSet.punctuationCharacters.union(.symbols)
+
+        guard password.rangeOfCharacter(from: uppercase) != nil,
+            password.rangeOfCharacter(from: lowercase) != nil,
+            password.rangeOfCharacter(from: digits) != nil,
+            password.rangeOfCharacter(from: symbols) != nil else {
+            errorMessage.text = "Password must include upper/lowercase, a number, and a symbol."
+            return
+        }
+        login()
+        errorMessage.text = ""
     }
 }

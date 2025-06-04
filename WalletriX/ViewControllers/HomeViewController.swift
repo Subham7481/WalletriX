@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 class HomeViewController: UIViewController{
     let tempLogoutButton = UIButton(type: .system)
     override func viewDidLoad() {
@@ -22,8 +23,26 @@ class HomeViewController: UIViewController{
         tempLogoutButton.translatesAutoresizingMaskIntoConstraints = false
         tempLogoutButton.addTarget(self, action: #selector(logout), for: .touchUpInside)
         view.addSubview(tempLogoutButton)
+        
+        NSLayoutConstraint.activate([
+            tempLogoutButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 500),
+            tempLogoutButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            tempLogoutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            tempLogoutButton.heightAnchor.constraint(equalToConstant: 50),
+            tempLogoutButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+        ])
     }
     @objc func logout(){
-        
+        do{
+            try Auth.auth().signOut()
+            
+            let VC = ViewController()
+            VC.modalPresentationStyle = .fullScreen
+            self.present(VC, animated: true)
+            
+        } catch let signOutError as NSError{
+            print("Error signing out: %@", signOutError)
+        }
     }
 }

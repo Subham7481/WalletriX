@@ -21,6 +21,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
     let withMessage = UILabel()
     let googleSignUp = UIButton()
     let loginMessage = UITextView()
+    let errorMessage = UILabel()
     
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -57,6 +58,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         passwordField.autocapitalizationType = .none
         passwordField.autocorrectionType = .no
         passwordField.translatesAutoresizingMaskIntoConstraints = false
+        passwordField.isSecureTextEntry = true
         view.addSubview(passwordField)
         
         toggleButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
@@ -102,7 +104,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(signUp), for: .touchUpInside)
+        button.addTarget(self, action: #selector(signup), for: .touchUpInside)
         view.addSubview(button)
         
         //With Message
@@ -150,6 +152,13 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         loginMessage.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(loginMessage)
+        
+        //Error meaage
+        errorMessage.textAlignment = .center
+        errorMessage.textColor = .red
+        errorMessage.font = .systemFont(ofSize: 16)
+        errorMessage.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(errorMessage)
 
         
         NSLayoutConstraint.activate([
@@ -195,7 +204,13 @@ class SignupViewController: UIViewController, UITextViewDelegate{
             loginMessage.topAnchor.constraint(equalTo: googleSignUp.bottomAnchor, constant: 20),
             loginMessage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loginMessage.widthAnchor.constraint(equalToConstant: 300),
-            loginMessage.heightAnchor.constraint(equalToConstant: 30)
+            loginMessage.heightAnchor.constraint(equalToConstant: 30),
+            
+            errorMessage.topAnchor.constraint(equalTo: loginMessage.bottomAnchor, constant: 20),
+            errorMessage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorMessage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            errorMessage.widthAnchor.constraint(equalToConstant: 300),
+            errorMessage.heightAnchor.constraint(equalToConstant: 30)
             
         ])
     }
@@ -203,7 +218,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
     @objc func togglePasswordVisible(){
         passwordField.isSecureTextEntry.toggle()
         
-        let image = passwordField.isSecureTextEntry ? "eye.slash" : "eye"
+        let image = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
         toggleButton.setImage(UIImage(systemName: image), for: .normal)
     }
     
@@ -214,7 +229,6 @@ class SignupViewController: UIViewController, UITextViewDelegate{
     }
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        
         if URL.absoluteString == "action://terms" {
             print("Terms tapped")
             let termsVC = TermsViewController()
@@ -228,17 +242,90 @@ class SignupViewController: UIViewController, UITextViewDelegate{
             self.navigationController?.pushViewController(loginVC, animated: true)
             return false
         }
-
         return true
     }
 }
 
 extension SignupViewController{
-    @objc func signUp(){
+    @objc func signup(){
+        guard let email = emailField.text, !email.isEmpty,
+                  let password = passwordField.text, !password.isEmpty else {
+                errorMessage.text = "Please enter email and password"
+                return
+        }
         
+        Auth.auth().createUser(withEmail: email, password: password){ [weak self] result, error in
+            if let error = error{
+                DispatchQueue.main.async {
+                    self?.errorMessage.text = "Register failed: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            self?.addDetailsToFirebase()
+            
+            DispatchQueue.main.async {
+//                self?.dismiss(animated: true, completion: nil)
+                self?.navigationController?.popViewController(animated: true)
+            }
+        }
     }
     
     @objc func signUpWithGoogle(){
         
+    }
+    
+    func validate(){
+        guard let name = nameField.text,
+            let email = emailField.text,
+            let password = passwordField.text,
+            !name.isEmpty,
+            !email.isEmpty,
+            !password.isEmpty,
+            checkBox.isSelected else {
+            errorMessage.text = "Please fill all fields and agree to terms."
+            return
+        }
+        
+        guard email.contains("@"), email.contains(".") else {
+            errorMessage.text = "Please enter a valid email."
+            return
+        }
+        
+        guard password.count >= 6 else {
+            errorMessage.text = "Password must be at least 6 characters."
+            return
+        }
+        
+        let uppercase = CharacterSet.uppercaseLetters
+            let lowercase = CharacterSet.lowercaseLetters
+            let digits = CharacterSet.decimalDigits
+            let symbols = CharacterSet.punctuationCharacters.union(.symbols)
+
+        guard password.rangeOfCharacter(from: uppercase) != nil,
+            password.rangeOfCharacter(from: lowercase) != nil,
+            password.rangeOfCharacter(from: digits) != nil,
+            password.rangeOfCharacter(from: symbols) != nil else {
+            errorMessage.text = "Password must include upper/lowercase, a number, and a symbol."
+            return
+        }
+        signup()
+        errorMessage.text = ""
+    }
+    
+    func addDetailsToFirebase(){
+        guard let name = nameField.text, let uid = Auth.auth().currentUser?.uid else {return}
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).setData([
+            "name" : name,
+            "email" : Auth.auth().currentUser?.email ?? ""
+        ]) { error in
+            if let error = error {
+                print("Failed to save user: \(error.localizedDescription)")
+            } else {
+                print("User details saved.")
+            }
+        }
     }
 }
