@@ -35,6 +35,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         //Name text field.
         nameField.placeholder = "Name"
         nameField.textColor = .black
+        nameField.backgroundColor = .white
         nameField.borderStyle = .roundedRect
         nameField.autocapitalizationType = .none
         nameField.autocorrectionType = .no
@@ -45,6 +46,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         //Email text field.
         emailField.placeholder = "Email"
         emailField.textColor = .black
+        emailField.backgroundColor = .white
         emailField.borderStyle = .roundedRect
         emailField.autocapitalizationType = .none
         emailField.autocorrectionType = .no
@@ -54,6 +56,7 @@ class SignupViewController: UIViewController, UITextViewDelegate{
         //Password text field.
         passwordField.placeholder = "Password"
         passwordField.textColor = .black
+        passwordField.backgroundColor = .white
         passwordField.borderStyle = .roundedRect
         passwordField.autocapitalizationType = .none
         passwordField.autocorrectionType = .no
@@ -265,7 +268,6 @@ extension SignupViewController{
             self?.addDetailsToFirebase()
             
             DispatchQueue.main.async {
-//                self?.dismiss(animated: true, completion: nil)
                 self?.navigationController?.popViewController(animated: true)
             }
         }

@@ -29,6 +29,7 @@ class LoginViewController: UIViewController, UITextViewDelegate{
         //Email Field
         emailField.placeholder = "Email"
         emailField.textColor = .black
+        emailField.backgroundColor = .white
         emailField.borderStyle = .roundedRect
         emailField.autocapitalizationType = .none
         emailField.autocorrectionType = .no
@@ -38,6 +39,7 @@ class LoginViewController: UIViewController, UITextViewDelegate{
         //Psssword Field
         passwordField.placeholder = "Password"
         passwordField.textColor = .black
+        passwordField.backgroundColor = .white
         passwordField.borderStyle = .roundedRect
         passwordField.autocapitalizationType = .none
         passwordField.autocorrectionType = .no
@@ -190,7 +192,7 @@ extension LoginViewController{
         }
             
         DispatchQueue.main.async {
-            let homeVC = HomeViewController()
+            let homeVC = MainTabBarController()
             homeVC.modalPresentationStyle = .fullScreen
             self?.present(homeVC, animated: true)
         }

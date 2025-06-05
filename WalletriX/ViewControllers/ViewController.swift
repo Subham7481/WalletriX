@@ -117,10 +117,12 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             msgLabel1.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 30),
             msgLabel1.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             msgLabel1.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            msgLabel1.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             msgLabel2.topAnchor.constraint(equalTo: msgLabel1.bottomAnchor, constant: 12),
             msgLabel2.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             msgLabel2.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            msgLabel2.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             signUpButton.topAnchor.constraint(equalTo: msgLabel2.bottomAnchor, constant: 30),
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),

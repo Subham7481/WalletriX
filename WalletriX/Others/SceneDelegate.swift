@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import FirebaseAuth
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -18,9 +18,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
-        window?.windowScene = windowScene
-        window?.rootViewController = UINavigationController(rootViewController: ViewController())
+        window = UIWindow(windowScene: windowScene)
+//        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
+//        window?.windowScene = windowScene
+//        window?.rootViewController = UINavigationController(rootViewController: ViewController())
+//        window?.makeKeyAndVisible()
+        
+        if Auth.auth().currentUser != nil {
+            let tabBarController = MainTabBarController()
+            window?.rootViewController = tabBarController
+        } else {
+            let vc = ViewController()
+            window?.rootViewController = UINavigationController(rootViewController: vc)
+        }
         window?.makeKeyAndVisible()
     }
 
